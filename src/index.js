@@ -12,17 +12,20 @@ This simple key/value store is intended to serve
  as a dumb, in memory, key/value store that empty
  itself after `KV_TTL` milliseconds.
 */
-module.exports = initializer({
-  name: 'kv',
-  type: 'service',
-  inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay'],
-  options: { singleton: true },
-}, initKV);
+module.exports = initializer(
+  {
+    name: 'kv',
+    type: 'service',
+    inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay'],
+    options: { singleton: true },
+  },
+  initKV
+);
 
 /**
-* Creates a key/value store
-* @class
-*/
+ * Creates a key/value store
+ * @class
+ */
 class KV {
   constructor({ store, ttl, log, delay }) {
     this._log = log;
@@ -48,8 +51,12 @@ class KV {
    */
   set(key, value) {
     return new Promise((resolve, reject) => {
-      this._store.set(key, value);
-      resolve();
+      try {
+        this._store.set(key, value);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
@@ -66,7 +73,11 @@ class KV {
    */
   get(key) {
     return new Promise((resolve, reject) => {
-      resolve(this._store.get(key));
+      try {
+        resolve(this._store.get(key));
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
@@ -106,9 +117,7 @@ class KV {
    * // Prints: ['world', 'bar']
    */
   bulkGet(keys) {
-    return Promise.all(
-      keys.map(key => this.get(key))
-    );
+    return Promise.all(keys.map(key => this.get(key)));
   }
 
   _kvServiceClear() {
@@ -118,18 +127,15 @@ class KV {
   }
 
   _kvServiceRenew() {
-    if(this._currentDelay) {
-      this._delay.cancel(this._currentDelay)
-      .catch((err) => {
+    if (this._currentDelay) {
+      this._delay.cancel(this._currentDelay).catch(err => {
         this._log('debug', 'No delay to cancel.', err);
       });
     }
 
     this._currentDelay = this._delay.create(this._ttl);
 
-    this._currentDelay
-    .then(this._kvServiceClear.bind(this))
-    .catch((err) => {
+    this._currentDelay.then(this._kvServiceClear.bind(this)).catch(err => {
       this._log('debug', 'Delay renewed.', err);
     });
   }
@@ -164,10 +170,12 @@ function initKV({
 }) {
   log('debug', 'Simple Key Value Service initialized.');
 
-  return Promise.resolve(new KV({
-    ttl: KV_TTL,
-    store: KV_STORE,
-    log,
-    delay,
-  }));
+  return Promise.resolve(
+    new KV({
+      ttl: KV_TTL,
+      store: KV_STORE,
+      log,
+      delay,
+    })
+  );
 }
