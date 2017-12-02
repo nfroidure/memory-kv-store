@@ -46,8 +46,8 @@
   "homepage": "https://github.com/nfroidure/memory-kv-store#readme",
   "dependencies": {
     "common-services": "^1.0.0",
-    "debug": "2.6.1",
-    "knifecycle": "^2.0.0"
+    "debug": "3.1.0",
+    "knifecycle": "^2.4.2"
   },
   "devDependencies": {
     "commitizen": "^2.9.6",
