@@ -6,7 +6,10 @@
   "metapak": {
     "data": {
       "files": "src/*.js",
-      "testsFiles": "src/*.mocha.js"
+      "testsFiles": "src/*.mocha.js",
+      "ignore": [
+        "dist"
+      ]
     },
     "configs": [
       "readme",
