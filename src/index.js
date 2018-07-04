@@ -1,6 +1,6 @@
 'use strict';
 
-const { initializer } = require('knifecycle/dist/util');
+import { initializer } from 'knifecycle/dist/util';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
@@ -12,14 +12,14 @@ This simple key/value store is intended to serve
  as a dumb, in memory, key/value store that empty
  itself after `KV_TTL` milliseconds.
 */
-module.exports = initializer(
+export default initializer(
   {
     name: 'kv',
     type: 'service',
     inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay'],
     options: { singleton: true },
   },
-  initKV
+  initKV,
 );
 
 /**
@@ -100,7 +100,7 @@ class KV {
         const value = values[index];
 
         return this.set(key, value);
-      })
+      }),
     );
   }
 
@@ -176,6 +176,6 @@ function initKV({
       store: KV_STORE,
       log,
       delay,
-    })
+    }),
   );
 }

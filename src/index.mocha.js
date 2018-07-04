@@ -1,12 +1,10 @@
 /* eslint max-nested-callbacks: 0 */
-'use strict';
-
-const assert = require('assert');
-const sinon = require('sinon');
-const { Knifecycle } = require('knifecycle');
-const initLog = require('../../common-services/src/log.mock');
-const initDelay = require('../../common-services/src/delay.mock');
-const initKV = require('./index');
+import assert from 'assert';
+import sinon from 'sinon';
+import { Knifecycle } from 'knifecycle';
+import initLog from '../../common-services/dist/log.mock';
+import initDelay from '../../common-services/dist/delay.mock';
+import initKV from './index';
 
 describe('Simple Key Value service', () => {
   let $;
@@ -26,7 +24,7 @@ describe('Simple Key Value service', () => {
         assert.deepEqual(
           log.args,
           [['debug', 'Simple Key Value Service initialized.']],
-          'Simple Key Value initialization information'
+          'Simple Key Value initialization information',
         );
       })
       .then(done)
@@ -38,7 +36,7 @@ describe('Simple Key Value service', () => {
       .then(({ kv }) =>
         kv.get('lol').then(value => {
           assert.equal(value, {}.undef);
-        })
+        }),
       )
       .then(done)
       .catch(done);
@@ -53,12 +51,12 @@ describe('Simple Key Value service', () => {
             kv.set('lol', value).then(() =>
               kv.get('lol').then(_value => {
                 assert.deepEqual(_value, value);
-              })
-            )
+              }),
+            ),
           )
           .then(done)
           .catch(done);
-      }
+      },
     );
   });
 
@@ -67,7 +65,7 @@ describe('Simple Key Value service', () => {
       .then(({ kv }) =>
         kv.bulkGet(['lol', 'kikoo']).then(values => {
           assert.deepEqual(values, [{}.undef, {}.undef]);
-        })
+        }),
       )
       .then(done)
       .catch(done);
@@ -82,8 +80,8 @@ describe('Simple Key Value service', () => {
         kv.bulkSet(keys, values).then(() =>
           kv.bulkGet(keys).then(_values => {
             assert.deepEqual(_values, values);
-          })
-        )
+          }),
+        ),
       )
       .then(done)
       .catch(done);
@@ -128,7 +126,7 @@ describe('Simple Key Value service', () => {
                 .then(() =>
                   kv.get('lol').then(value => {
                     assert.equal(value, 'lol');
-                  })
+                  }),
                 )
                 .then(() => delay.__resolveAll())
                 .then(() => {
@@ -140,8 +138,8 @@ describe('Simple Key Value service', () => {
                   return kv.get('lol').then(value => {
                     assert.equal(value, {}.undef);
                   });
-                })
-            )
+                }),
+            ),
         )
         .then(done)
         .catch(done);
