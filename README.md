@@ -23,7 +23,7 @@ This simple project is intended to mock real key value stores likes Redis or
  that assume a key value store exists.
 
 It requires a `delay` services to be passed in, you can find an implementation
- in the `[common-services](https://github.com/nfroidure/common-services)`
+ in the [`common-services`](https://github.com/nfroidure/common-services)
  project.
 
 [//]: # (::contents:end)
