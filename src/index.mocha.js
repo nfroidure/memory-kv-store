@@ -2,8 +2,8 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import { Knifecycle } from 'knifecycle';
-import initLog from '../../common-services/dist/log.mock';
-import initDelay from '../../common-services/dist/delay.mock';
+import initLog from 'common-services/dist/log.mock';
+import initDelay from 'common-services/dist/delay.mock';
 import initKV from './index';
 
 describe('Simple Key Value service', () => {
