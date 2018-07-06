@@ -152,7 +152,9 @@ class KV {
  * @param  {Number}     [services.KV_TTL]
  * The store time to live
  * @param  {Map}        [services.KV_STORE]
- * The store time to live
+ * The store for values as a simple object, it is useful
+ *  to get a synchronous access to the store in tests
+ *  for example.
  * @return {Promise<KV>}
  * A promise of the kv service
  * @example
