@@ -2,7 +2,7 @@
   "name": "memory-kv-store",
   "version": "2.0.0",
   "description": "A simple in-memory key/value store.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "metapak": {
     "data": {
       "files": "src/*.js",
