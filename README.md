@@ -7,13 +7,14 @@
 # memory-kv-store
 > A simple in-memory key/value store.
 
-[![NPM version](https://badge.fury.io/js/memory-kv-store.svg)](https://npmjs.org/package/memory-kv-store)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nfroidure/memory-kv-store/blob/master/LICENSE)
 [![Build status](https://secure.travis-ci.org/nfroidure/memory-kv-store.svg)](https://travis-ci.org/nfroidure/memory-kv-store)
+[![Coverage Status](https://coveralls.io/repos/nfroidure/memory-kv-store/badge.svg?branch=master)](https://coveralls.io/r/nfroidure/memory-kv-store?branch=master)
+[![NPM version](https://badge.fury.io/js/memory-kv-store.svg)](https://npmjs.org/package/memory-kv-store)
 [![Dependency Status](https://david-dm.org/nfroidure/memory-kv-store.svg)](https://david-dm.org/nfroidure/memory-kv-store)
 [![devDependency Status](https://david-dm.org/nfroidure/memory-kv-store/dev-status.svg)](https://david-dm.org/nfroidure/memory-kv-store#info=devDependencies)
-[![Coverage Status](https://coveralls.io/repos/nfroidure/memory-kv-store/badge.svg?branch=master)](https://coveralls.io/r/nfroidure/memory-kv-store?branch=master)
+[![Package Quality](http://npm.packagequality.com/shield/memory-kv-store.svg)](http://packagequality.com/#?package=memory-kv-store)
 [![Code Climate](https://codeclimate.com/github/nfroidure/memory-kv-store.svg)](https://codeclimate.com/github/nfroidure/memory-kv-store)
-[![Dependency Status](https://dependencyci.com/github/nfroidure/memory-kv-store/badge)](https://dependencyci.com/github/nfroidure/memory-kv-store)
 
 
 [//]: # (::contents:start)
@@ -157,6 +158,9 @@ const kv = await initKV({
   delay: Promise.delay.bind(Promise),
 });
 ```
+
+# Authors
+- [Nicolas Froidure](http://insertafter.com/en/index.html)
 
 # License
 [MIT](https://github.com/nfroidure/memory-kv-store/blob/master/LICENSE)
