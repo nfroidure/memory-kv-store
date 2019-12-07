@@ -1,10 +1,18 @@
-'use strict';
-
-import { initializer } from 'knifecycle/dist/util';
+import { initializer } from 'knifecycle';
+import { LogService, DelayService } from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
-function noop() {}
+function noop(...args: any[]) {
+  args;
+}
+
+export interface KVStoreService<T> {
+  get: (key: string) => Promise<T | undefined>;
+  set: (key: string, value: T) => Promise<void>;
+  bulkGet: (keys: string[]) => Promise<(T | undefined)[]>;
+  bulkSet: (keys: string[], values: (T | undefined)[]) => Promise<void>;
+}
 
 /* Architecture Note #1: Memory Key/Value Store
 
@@ -26,8 +34,23 @@ export default initializer(
  * Creates a key/value store
  * @class
  */
-class KV {
-  constructor({ store, ttl, log, delay }) {
+class KV<T> {
+  private _log: LogService;
+  private _ttl: number;
+  private _delay: DelayService;
+  private _store: Map<string, T>;
+  private _currentDelay: Promise<void> | null;
+  constructor({
+    store,
+    ttl,
+    log,
+    delay,
+  }: {
+    store: Map<string, T>;
+    ttl: number;
+    log: LogService;
+    delay: DelayService;
+  }) {
     this._log = log;
     this._ttl = ttl;
     this._delay = delay;
@@ -42,15 +65,15 @@ class KV {
    * The key to store the value at
    * @param  {*}        value
    * The value to store
-   * @return {Promise}
+   * @return {Promise<void>}
    * A promise to be resolved when the value is stored.
    * @example
    * kv.set('hello', 'world');
    * .then(() => console.log('Stored!'));
    * // Prints: Stored!
    */
-  set(key, value) {
-    return new Promise((resolve, reject) => {
+  async set(key: string, value: T | undefined) {
+    await new Promise((resolve, reject) => {
       try {
         this._store.set(key, value);
         resolve();
@@ -64,15 +87,15 @@ class KV {
    * Get a value from the store
    * @param  {String}   key
    * The key that map to the value
-   * @return {Promise}
+   * @return {Promise<*>}
    * A promise that resolve to the actual value.
    * @example
    * kv.get('hello');
    * .then((value) => console.log(value));
    * // Prints: world
    */
-  get(key) {
-    return new Promise((resolve, reject) => {
+  async get(key: string): Promise<T | undefined> {
+    return await new Promise((resolve, reject) => {
       try {
         resolve(this._store.get(key));
       } catch (err) {
@@ -87,15 +110,15 @@ class KV {
    * The keys to store the values at
    * @param  {Array}          values
    * The values to store
-   * @return {Promise}
+   * @return {Promise<void>}
    * A promise to be resolved when the values are stored.
    * @example
    * kv.bulkSet(['hello', 'foo'], ['world', 'bar']);
    * .then(() => console.log('Stored!'));
    * // Prints: Stored!
    */
-  bulkSet(keys, values) {
-    return Promise.all(
+  async bulkSet(keys: string[], values: (T | undefined)[]) {
+    await Promise.all(
       keys.map((key, index) => {
         const value = values[index];
 
@@ -108,7 +131,7 @@ class KV {
    * Get a several values from the store
    * @param  {Array.String}   keys
    * The keys to retrieve the values
-   * @return {Promise<Array>}
+   * @return {Promise<Array<*>>}
    * A promise to be resolved when the values
    *  are retrieved.
    * @example
@@ -116,8 +139,8 @@ class KV {
    * .then((values) => console.log(values));
    * // Prints: ['world', 'bar']
    */
-  bulkGet(keys) {
-    return Promise.all(keys.map(key => this.get(key)));
+  async bulkGet(keys: string[]): Promise<(T | undefined)[]> {
+    return await Promise.all(keys.map(key => this.get(key)));
   }
 
   _kvServiceClear() {
@@ -128,15 +151,15 @@ class KV {
 
   _kvServiceRenew() {
     if (this._currentDelay) {
-      this._delay.cancel(this._currentDelay).catch(err => {
-        this._log('debug', 'No delay to cancel.', err);
+      this._delay.clear(this._currentDelay).catch(err => {
+        this._log('debug', '💾 - No delay to cancel.', err);
       });
     }
 
     this._currentDelay = this._delay.create(this._ttl);
 
     this._currentDelay.then(this._kvServiceClear.bind(this)).catch(err => {
-      this._log('debug', 'Delay renewed.', err);
+      this._log('debug', '💾 - Delay renewed.', err);
     });
   }
 }
@@ -164,20 +187,23 @@ class KV {
  *   delay: Promise.delay.bind(Promise),
  * });
  */
-function initKV({
+async function initKV<T = any>({
   KV_TTL = DEFAULT_KV_TTL,
   KV_STORE = new Map(),
   log = noop,
   delay,
-}) {
-  log('debug', 'Simple Key Value Service initialized.');
+}: {
+  KV_TTL?: number;
+  KV_STORE?: Map<string, T | undefined>;
+  log?: LogService;
+  delay: DelayService;
+}): Promise<KVStoreService<T>> {
+  log('debug', '💾 - Simple Key Value Service initialized.');
 
-  return Promise.resolve(
-    new KV({
-      ttl: KV_TTL,
-      store: KV_STORE,
-      log,
-      delay,
-    }),
-  );
+  return new KV<T>({
+    ttl: KV_TTL,
+    store: KV_STORE,
+    log,
+    delay,
+  });
 }
