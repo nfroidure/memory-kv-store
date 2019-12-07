@@ -1,3 +1,7 @@
+# [2.1.0](https://github.com/nfroidure/memory-kv-store/compare/v2.0.2...v2.1.0) (2019-12-07)
+
+
+
 <a name="2.0.2"></a>
 ## [2.0.2](https://github.com/nfroidure/memory-kv-store/compare/v2.0.1...v2.0.2) (2018-09-16)
 
