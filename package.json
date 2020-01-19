@@ -3,20 +3,18 @@
   "version": "2.1.0",
   "description": "A simple in-memory key/value store.",
   "main": "dist/index.js",
-  "types": "src/index.d.ts",
+  "types": "dist/index.d.ts",
   "metapak": {
     "data": {
       "files": "'src/**/*.ts'",
       "testsFiles": "'src/**/*.tests.ts'",
       "distFiles": "'dist/**/*.js'",
-      "typesFiles": "src/*.ts",
-      "typesDefs": "src/index.d.ts",
       "ignore": [
         "dist"
       ],
       "bundleFiles": [
-        "dist/**/*.js",
-        "src/index.d.ts"
+        "dist",
+        "src"
       ]
     },
     "configs": [
@@ -36,7 +34,7 @@
     "architecture": "jsarch 'src/**/*.ts' > ARCHITECTURE.md && git add ARCHITECTURE.md",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "cli": "env NODE_ENV=${NODE_ENV:-cli}",
-    "compile": "babel --extensions '.ts,.js' src --out-dir=dist",
+    "compile": "babel --extensions '.ts,.js' src --out-dir=dist --source-maps=true",
     "cover": "npm run jest -- --coverage",
     "coveralls": "npm run cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "cz": "env NODE_ENV=${NODE_ENV:-cli} git cz",
@@ -44,11 +42,11 @@
     "jest": "NODE_ENV=test jest",
     "lint": "eslint 'src/**/*.ts'",
     "metapak": "metapak",
-    "precz": "npm run doc && npm run architecture && npm t && npm run lint && npm run metapak -- -s && npm run types",
+    "precz": "npm run types && npm run compile && npm run doc && npm run architecture && npm t && npm run lint && npm run metapak -- -s",
     "prettier": "prettier --write 'src/**/*.ts'",
-    "preversion": "npm t && npm run lint && npm run compile && npm run doc && npm run architecture && npm run metapak -s && npm run metapak -- -s && npm run types",
+    "preversion": "npm run types && npm run compile && npm run doc && npm run architecture && npm t && npm run lint&& npm run metapak -- -s && npm run lint && npm run metapak -- -s",
     "test": "npm run jest",
-    "types": "rm src/index.d.ts; tsc --project . --declaration --emitDeclarationOnly; npm run prettier -- src/index.d.ts",
+    "types": "rimraf -f 'dist/**/*.d.ts' && tsc --project . --declaration --emitDeclarationOnly --outDir dist",
     "version": "npm run changelog && git add CHANGELOG.md"
   },
   "repository": {
@@ -66,34 +64,35 @@
   },
   "homepage": "https://github.com/nfroidure/memory-kv-store#readme",
   "dependencies": {
-    "common-services": "^6.0.1",
-    "knifecycle": "^8.0.0"
+    "common-services": "^6.2.0",
+    "knifecycle": "^8.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.4",
-    "@babel/core": "^7.7.4",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "@babel/preset-typescript": "^7.7.4",
-    "@babel/register": "^7.7.4",
-    "@types/jest": "^24.0.23",
-    "@typescript-eslint/parser": "^2.9.0",
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "@babel/register": "^7.8.3",
+    "@types/jest": "^24.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
     "babel-eslint": "^10.0.3",
     "commitizen": "^4.0.3",
-    "conventional-changelog-cli": "^2.0.28",
+    "conventional-changelog-cli": "^2.0.31",
     "coveralls": "^3.0.9",
     "cz-conventional-changelog": "^3.0.2",
-    "eslint": "^6.7.1",
-    "eslint-plugin-prettier": "^3.1.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "jest": "^24.9.0",
     "jsarch": "^2.0.3",
     "jsdoc-to-markdown": "^5.0.3",
     "metapak": "^3.1.6",
-    "metapak-nfroidure": "9.7.4",
+    "metapak-nfroidure": "9.8.1",
     "prettier": "^1.19.1",
     "sinon": "^7.5.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.5"
   },
   "engines": {
     "node": ">=8.12.0"
@@ -193,8 +192,8 @@
   },
   "contributors": [],
   "files": [
-    "dist/**/*.js",
-    "src/index.d.ts",
+    "dist",
+    "src",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
