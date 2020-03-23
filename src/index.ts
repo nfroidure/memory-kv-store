@@ -7,12 +7,22 @@ function noop(...args: any[]) {
   args;
 }
 
-export interface KVStoreService<T> {
+export type KVStoreConfig<T> = {
+  KV_TTL?: number;
+  KV_STORE: Map<string, T>;
+};
+
+export type KVStoreDependencies<T> = KVStoreConfig<T> & {
+  log: LogService;
+  delay: DelayService;
+};
+
+export type KVStoreService<T> = {
   get: (key: string) => Promise<T | undefined>;
   set: (key: string, value: T) => Promise<void>;
   bulkGet: (keys: string[]) => Promise<(T | undefined)[]>;
   bulkSet: (keys: string[], values: (T | undefined)[]) => Promise<void>;
-}
+};
 
 /* Architecture Note #1: Memory Key/Value Store
 
@@ -192,12 +202,7 @@ async function initKV<T = any>({
   KV_STORE = new Map(),
   log = noop,
   delay,
-}: {
-  KV_TTL?: number;
-  KV_STORE?: Map<string, T | undefined>;
-  log?: LogService;
-  delay: DelayService;
-}): Promise<KVStoreService<T>> {
+}: KVStoreDependencies<T>): Promise<KVStoreService<T>> {
   log('debug', '💾 - Simple Key Value Service initialized.');
 
   return new KV<T>({
