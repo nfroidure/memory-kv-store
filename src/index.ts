@@ -150,7 +150,7 @@ class KV<T> {
    * // Prints: ['world', 'bar']
    */
   async bulkGet(keys: string[]): Promise<(T | undefined)[]> {
-    return await Promise.all(keys.map(key => this.get(key)));
+    return await Promise.all(keys.map((key) => this.get(key)));
   }
 
   _kvServiceClear() {
@@ -161,14 +161,14 @@ class KV<T> {
 
   _kvServiceRenew() {
     if (this._currentDelay) {
-      this._delay.clear(this._currentDelay).catch(err => {
+      this._delay.clear(this._currentDelay).catch((err) => {
         this._log('debug', '💾 - No delay to cancel.', err);
       });
     }
 
     this._currentDelay = this._delay.create(this._ttl);
 
-    this._currentDelay.then(this._kvServiceClear.bind(this)).catch(err => {
+    this._currentDelay.then(this._kvServiceClear.bind(this)).catch((err) => {
       this._log('debug', '💾 - Delay renewed.', err);
     });
   }

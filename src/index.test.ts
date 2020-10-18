@@ -39,7 +39,7 @@ describe('Simple Key Value service', () => {
     assert.equal(value, undefined);
   });
 
-  ['trololol', { lol: 'lol' }, 1, true].forEach(value => {
+  ['trololol', { lol: 'lol' }, 1, true].forEach((value) => {
     it(
       'should allow to set and get a ' + typeof value + ' by its key',
       async () => {

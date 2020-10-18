@@ -8,12 +8,12 @@
 > A simple in-memory key/value store.
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nfroidure/memory-kv-store/blob/master/LICENSE)
-[![Build status](https://secure.travis-ci.org/nfroidure/memory-kv-store.svg)](https://travis-ci.org/nfroidure/memory-kv-store)
-[![Coverage Status](https://coveralls.io/repos/nfroidure/memory-kv-store/badge.svg?branch=master)](https://coveralls.io/r/nfroidure/memory-kv-store?branch=master)
+[![Build status](https://travis-ci.com/nfroidure/memory-kv-store.svg?branch=master)](https://travis-ci.com/github/nfroidure/memory-kv-store)
+[![Coverage Status](https://coveralls.io/repos/github/nfroidure/memory-kv-store/badge.svg?branch=master)](https://coveralls.io/github/nfroidure/memory-kv-store?branch=master)
 [![NPM version](https://badge.fury.io/js/memory-kv-store.svg)](https://npmjs.org/package/memory-kv-store)
 [![Dependency Status](https://david-dm.org/nfroidure/memory-kv-store.svg)](https://david-dm.org/nfroidure/memory-kv-store)
 [![devDependency Status](https://david-dm.org/nfroidure/memory-kv-store/dev-status.svg)](https://david-dm.org/nfroidure/memory-kv-store#info=devDependencies)
-[![Package Quality](http://npm.packagequality.com/shield/memory-kv-store.svg)](http://packagequality.com/#?package=memory-kv-store)
+[![Package Quality](https://npm.packagequality.com/shield/memory-kv-store.svg)](https://packagequality.com/#?package=memory-kv-store)
 [![Code Climate](https://codeclimate.com/github/nfroidure/memory-kv-store.svg)](https://codeclimate.com/github/nfroidure/memory-kv-store)
 
 
