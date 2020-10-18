@@ -1,3 +1,7 @@
+## [3.0.1](https://github.com/nfroidure/memory-kv-store/compare/v3.0.0...v3.0.1) (2020-10-18)
+
+
+
 # [3.0.0](https://github.com/nfroidure/memory-kv-store/compare/v2.2.0...v3.0.0) (2020-03-23)
 
 
