@@ -1,10 +1,8 @@
-/* eslint max-nested-callbacks: 0 */
-import assert from 'assert';
-import sinon from 'sinon';
 import { Knifecycle } from 'knifecycle';
 import initLog from 'common-services/dist/log.mock';
 import initDelay from 'common-services/dist/delay.mock';
-import initKV, { KVStoreService } from './index';
+import initKV from './index';
+import type { KVStoreService } from './index';
 
 describe('Simple Key Value service', () => {
   let $: Knifecycle;
@@ -22,13 +20,11 @@ describe('Simple Key Value service', () => {
       'kv',
     ]);
 
-    assert.equal(typeof kv.get, 'function', 'Expose a get function');
-    assert.equal(typeof kv.set, 'function', 'Expose a set function');
-    assert.deepEqual(
-      log.args,
-      [['debug', '💾 - Simple Key Value Service initialized.']],
-      'Simple Key Value initialization information',
-    );
+    expect(typeof kv.get).toEqual('function');
+    expect(typeof kv.set).toEqual('function');
+    expect(log.args).toEqual([
+      ['debug', '💾 - Simple Key Value Service initialized.'],
+    ]);
   });
 
   it('should allow to get a undefined value by its key', async () => {
@@ -36,7 +32,7 @@ describe('Simple Key Value service', () => {
 
     const value = await kv.get('lol');
 
-    assert.equal(value, undefined);
+    expect(value).toEqual(undefined);
   });
 
   ['trololol', { lol: 'lol' }, 1, true].forEach((value) => {
@@ -51,7 +47,7 @@ describe('Simple Key Value service', () => {
 
         const retrievedValue = await kv.get('lol');
 
-        assert.deepEqual(retrievedValue, value);
+        expect(retrievedValue).toEqual(value);
       },
     );
   });
@@ -61,7 +57,7 @@ describe('Simple Key Value service', () => {
 
     const values = await kv.bulkGet(['lol', 'kikoo']);
 
-    assert.deepEqual(values, [undefined, undefined]);
+    expect(values).toEqual([undefined, undefined]);
   });
 
   it('should allow to set and get values by their keys', async () => {
@@ -74,7 +70,7 @@ describe('Simple Key Value service', () => {
 
     const retrievedValues = await kv.bulkGet(keys);
 
-    assert.deepEqual(retrievedValues, values);
+    expect(retrievedValues).toEqual(values);
   });
 
   describe('when timeout occurs', () => {
@@ -93,14 +89,14 @@ describe('Simple Key Value service', () => {
         'delay',
       ]);
 
-      delayClearSpy = sinon.spy(delay, 'clear');
-      delayCreateSpy = sinon.spy(delay, 'create');
+      delayClearSpy = jest.spyOn(delay, 'clear');
+      delayCreateSpy = jest.spyOn(delay, 'create');
       context = { log, kv, delay };
     });
 
     afterEach(() => {
-      delayClearSpy.restore();
-      delayCreateSpy.restore();
+      delayClearSpy.mockReset();
+      delayCreateSpy.mockReset();
     });
 
     it('should reset the store after the delay timeout', async () => {
@@ -110,27 +106,30 @@ describe('Simple Key Value service', () => {
 
       await delay.__resolveAll();
 
-      assert.equal(delayClearSpy.args.length, 0);
-      assert.deepEqual(delayCreateSpy.args, [[5 * 60 * 1000]]);
+      expect(delayClearSpy.mock.calls.length).toEqual(0);
+      expect(delayCreateSpy.mock.calls).toEqual([[5 * 60 * 1000]]);
 
       const value = await kv.get('lol');
 
-      assert.equal(value, undefined);
+      expect(value).toBeUndefined();
 
       await kv.set('lol', 'lol');
 
       const newValue = await kv.get('lol');
 
-      assert.equal(newValue, 'lol');
+      expect(newValue).toEqual('lol');
 
       await delay.__resolveAll();
 
-      assert.equal(delayClearSpy.args.length, 0);
-      assert.deepEqual(delayCreateSpy.args, [[5 * 60 * 1000], [5 * 60 * 1000]]);
+      expect(delayClearSpy.mock.calls.length).toEqual(0);
+      expect(delayCreateSpy.mock.calls).toEqual([
+        [5 * 60 * 1000],
+        [5 * 60 * 1000],
+      ]);
 
       const lastValue = await kv.get('lol');
 
-      assert.equal(lastValue, undefined);
+      expect(lastValue).toBeUndefined();
     });
   });
 });

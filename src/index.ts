@@ -1,5 +1,5 @@
 import { initializer } from 'knifecycle';
-import { LogService, DelayService } from 'common-services';
+import type { LogService, DelayService } from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
@@ -83,7 +83,7 @@ class KV<T> {
    * // Prints: Stored!
    */
   async set(key: string, value: T | undefined) {
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       try {
         this._store.set(key, value);
         resolve();
