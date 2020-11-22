@@ -67,8 +67,8 @@
   },
   "homepage": "https://github.com/nfroidure/memory-kv-store#readme",
   "dependencies": {
-    "common-services": "^8.0.2",
-    "knifecycle": "^10.0.3"
+    "common-services": "^9.0.0",
+    "knifecycle": "11.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",

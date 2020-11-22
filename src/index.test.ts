@@ -1,11 +1,11 @@
 import { Knifecycle } from 'knifecycle';
 import initLog from 'common-services/dist/log.mock';
 import initDelay from 'common-services/dist/delay.mock';
-import initKV from './index';
-import type { KVStoreService } from './index';
+import initKV from '.';
+import type { KVStoreService } from '.';
 
 describe('Simple Key Value service', () => {
-  let $: Knifecycle;
+  let $: Knifecycle<unknown>;
 
   beforeEach(() => {
     $ = new Knifecycle();
@@ -15,10 +15,10 @@ describe('Simple Key Value service', () => {
   });
 
   it('should init well', async () => {
-    const { log, kv }: { kv: KVStoreService<any>; log: any } = await $.run([
-      'log',
-      'kv',
-    ]);
+    const { log, kv } = (await $.run(['log', 'kv'])) as {
+      kv: KVStoreService<unknown>;
+      log: any;
+    };
 
     expect(typeof kv.get).toEqual('function');
     expect(typeof kv.set).toEqual('function');
@@ -28,7 +28,7 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to get a undefined value by its key', async () => {
-    const { kv }: { kv: KVStoreService<number> } = await $.run(['kv']);
+    const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
 
     const value = await kv.get('lol');
 
@@ -39,9 +39,9 @@ describe('Simple Key Value service', () => {
     it(
       'should allow to set and get a ' + typeof value + ' by its key',
       async () => {
-        const { kv }: { kv: KVStoreService<typeof value> } = await $.run([
-          'kv',
-        ]);
+        const { kv } = (await $.run(['kv'])) as {
+          kv: KVStoreService<typeof value>;
+        };
 
         await kv.set('lol', value);
 
@@ -53,7 +53,7 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to bulk get a undefined values by their keys', async () => {
-    const { kv }: { kv: KVStoreService<number> } = await $.run(['kv']);
+    const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
 
     const values = await kv.bulkGet(['lol', 'kikoo']);
 
@@ -79,15 +79,11 @@ describe('Simple Key Value service', () => {
     let delayCreateSpy;
 
     beforeEach(async () => {
-      const {
-        log,
-        kv,
-        delay,
-      }: { kv: KVStoreService<number>; log: any; delay: any } = await $.run([
-        'log',
-        'kv',
-        'delay',
-      ]);
+      const { log, kv, delay } = (await $.run(['log', 'kv', 'delay'])) as {
+        kv: KVStoreService<number>;
+        log: any;
+        delay: any;
+      };
 
       delayClearSpy = jest.spyOn(delay, 'clear');
       delayCreateSpy = jest.spyOn(delay, 'create');

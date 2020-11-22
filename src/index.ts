@@ -3,7 +3,7 @@ import type { LogService, DelayService } from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
-function noop(...args: any[]) {
+function noop(...args: unknown[]) {
   args;
 }
 
@@ -24,6 +24,10 @@ export type KVStoreService<T> = {
   bulkSet: (keys: string[], values: (T | undefined)[]) => Promise<void>;
 };
 
+export type KVStoreServiceInitializer<T> = (
+  dependencies: KVStoreDependencies<T>,
+) => Promise<KVStoreService<T>>;
+
 /* Architecture Note #1: Memory Key/Value Store
 
 This simple key/value store is intended to serve
@@ -35,7 +39,6 @@ export default initializer(
     name: 'kv',
     type: 'service',
     inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay'],
-    options: { singleton: true },
   },
   initKV,
 );
@@ -197,7 +200,7 @@ class KV<T> {
  *   delay: Promise.delay.bind(Promise),
  * });
  */
-async function initKV<T = any>({
+async function initKV<T>({
   KV_TTL = DEFAULT_KV_TTL,
   KV_STORE = new Map(),
   log = noop,
