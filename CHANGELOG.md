@@ -1,3 +1,12 @@
+# [4.1.0](https://github.com/nfroidure/memory-kv-store/compare/v4.0.1...v4.1.0) (2021-04-12)
+
+
+### Features
+
+* **core:** allow to set a TTL for stored values ([91b55f3](https://github.com/nfroidure/memory-kv-store/commit/91b55f3bf3895f1486978a64529349325dcff54d))
+
+
+
 ## [4.0.1](https://github.com/nfroidure/memory-kv-store/compare/v4.0.0...v4.0.1) (2021-04-10)
 
 
