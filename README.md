@@ -66,6 +66,7 @@ Instantiate the kv service
 | --- | --- | --- |
 | services | <code>Object</code> | The services to inject |
 | services.delay | <code>function</code> | A delaying function |
+| services.time | <code>function</code> | A timing function |
 | [services.log] | <code>function</code> | A logging function |
 | [services.KV_TTL] | <code>Number</code> | The store time to live |
 | [services.KV_STORE] | <code>Map</code> | The store for values as a simple object, it is useful  to get a synchronous access to the store in tests  for example. |

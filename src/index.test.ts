@@ -1,6 +1,7 @@
-import { Knifecycle } from 'knifecycle';
+import { constant, Knifecycle } from 'knifecycle';
 import initLog from 'common-services/dist/log.mock';
 import initDelay from 'common-services/dist/delay.mock';
+import initTime from 'common-services/dist/time.mock';
 import initKV from '.';
 import type { KVStoreService } from '.';
 
@@ -11,6 +12,7 @@ describe('Simple Key Value service', () => {
     $ = new Knifecycle();
     $.register(initLog);
     $.register(initDelay);
+    $.register(initTime);
     $.register(initKV);
   });
 
@@ -28,7 +30,9 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to get a undefined value by its key', async () => {
-    const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
+    const { kv } = (await $.run(['kv'])) as {
+      kv: KVStoreService<number>;
+    };
 
     const value = await kv.get('lol');
 
@@ -39,9 +43,14 @@ describe('Simple Key Value service', () => {
     it(
       'should allow to set and get a ' + typeof value + ' by its key',
       async () => {
-        const { kv } = (await $.run(['kv'])) as {
+        $.register(constant('KV_TTL', Infinity));
+
+        const { kv, time } = (await $.run(['kv', 'time'])) as {
           kv: KVStoreService<typeof value>;
+          time: any;
         };
+
+        time.returns(Date.parse('2020-01-01T00:00:00Z'));
 
         await kv.set('lol', value);
 
@@ -50,6 +59,23 @@ describe('Simple Key Value service', () => {
         expect(retrievedValue).toEqual(value);
       },
     );
+  });
+
+  it('should not return a value that expired', async () => {
+    const { kv, time } = (await $.run(['kv', 'time'])) as {
+      kv: KVStoreService<number>;
+      time: any;
+    };
+
+    time.returns(Date.parse('2020-01-01T00:00:00Z'));
+
+    await kv.set('lol', 1664, 3600);
+
+    time.returns(Date.parse('2020-01-01T10:00:00Z'));
+
+    const retrievedValue = await kv.get('lol');
+
+    expect(retrievedValue).toEqual(undefined);
   });
 
   it('should allow to bulk get a undefined values by their keys', async () => {
@@ -64,7 +90,12 @@ describe('Simple Key Value service', () => {
     const keys = ['a', 'b', 'c', 'd'];
     const values = [1, 2, undefined, 4];
 
-    const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
+    const { kv, time } = (await $.run(['kv', 'time'])) as {
+      kv: KVStoreService<number>;
+      time: any;
+    };
+
+    time.returns(Date.parse('2020-01-01T00:00:00Z'));
 
     await kv.bulkSet(keys, values);
 
@@ -79,15 +110,23 @@ describe('Simple Key Value service', () => {
     let delayCreateSpy;
 
     beforeEach(async () => {
-      const { log, kv, delay } = (await $.run(['log', 'kv', 'delay'])) as {
+      const { log, kv, delay, time } = (await $.run([
+        'log',
+        'kv',
+        'delay',
+        'time',
+      ])) as {
         kv: KVStoreService<number>;
         log: any;
         delay: any;
+        time: any;
       };
+
+      time.returns(Date.parse('2020-01-01T00:00:00Z'));
 
       delayClearSpy = jest.spyOn(delay, 'clear');
       delayCreateSpy = jest.spyOn(delay, 'create');
-      context = { log, kv, delay };
+      context = { log, kv, delay, time };
     });
 
     afterEach(() => {

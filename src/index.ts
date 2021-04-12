@@ -1,5 +1,5 @@
 import { initializer } from 'knifecycle';
-import type { LogService, DelayService } from 'common-services';
+import type { LogService, DelayService, TimeService } from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
@@ -7,21 +7,28 @@ function noop(...args: unknown[]) {
   args;
 }
 
+type InternalStore<T> = Map<string, { data: T; expiresAt: number }>;
+
 export type KVStoreConfig<T> = {
   KV_TTL?: number;
-  KV_STORE: Map<string, T>;
+  KV_STORE: InternalStore<T>;
 };
 
 export type KVStoreDependencies<T> = KVStoreConfig<T> & {
   log: LogService;
   delay: DelayService;
+  time: TimeService;
 };
 
 export type KVStoreService<T> = {
   get: (key: string) => Promise<T | undefined>;
-  set: (key: string, value: T) => Promise<void>;
+  set: (key: string, value: T, ttl?: number) => Promise<void>;
   bulkGet: (keys: string[]) => Promise<(T | undefined)[]>;
-  bulkSet: (keys: string[], values: (T | undefined)[]) => Promise<void>;
+  bulkSet: (
+    keys: string[],
+    values: (T | undefined)[],
+    ttls?: number[],
+  ) => Promise<void>;
 };
 
 export type KVStoreServiceInitializer<T> = (
@@ -38,7 +45,7 @@ export default initializer(
   {
     name: 'kv',
     type: 'service',
-    inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay'],
+    inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay', 'time'],
   },
   initKV,
 );
@@ -51,22 +58,26 @@ class KV<T> {
   private _log: LogService;
   private _ttl: number;
   private _delay: DelayService;
-  private _store: Map<string, T>;
+  private _time: TimeService;
+  private _store: InternalStore<T>;
   private _currentDelay: Promise<void> | null;
   constructor({
     store,
     ttl,
     log,
     delay,
+    time,
   }: {
-    store: Map<string, T>;
+    store: InternalStore<T>;
     ttl: number;
     log: LogService;
     delay: DelayService;
+    time: TimeService;
   }) {
     this._log = log;
     this._ttl = ttl;
     this._delay = delay;
+    this._time = time;
     this._store = store;
     this._currentDelay = null;
     this._kvServiceClear();
@@ -78,6 +89,8 @@ class KV<T> {
    * The key to store the value at
    * @param  {*}        value
    * The value to store
+   * @param  {number}   [ttl]
+   * The duration in milliseconds the value remains valid
    * @return {Promise<void>}
    * A promise to be resolved when the value is stored.
    * @example
@@ -85,10 +98,10 @@ class KV<T> {
    * .then(() => console.log('Stored!'));
    * // Prints: Stored!
    */
-  async set(key: string, value: T | undefined) {
+  async set(key: string, value: T | undefined, ttl = Infinity) {
     await new Promise<void>((resolve, reject) => {
       try {
-        this._store.set(key, value);
+        this._store.set(key, { data: value, expiresAt: ttl + this._time() });
         resolve();
       } catch (err) {
         reject(err);
@@ -108,13 +121,17 @@ class KV<T> {
    * // Prints: world
    */
   async get(key: string): Promise<T | undefined> {
-    return await new Promise((resolve, reject) => {
-      try {
-        resolve(this._store.get(key));
-      } catch (err) {
-        reject(err);
+    const result = await this._store.get(key);
+
+    if (result) {
+      if (result.expiresAt > this._time()) {
+        return result.data;
+      } else {
+        this._store.delete(key);
       }
-    });
+    }
+
+    return;
   }
 
   /**
@@ -123,6 +140,8 @@ class KV<T> {
    * The keys to store the values at
    * @param  {Array}          values
    * The values to store
+   * @param  {Array.number}   [ttls]
+   * The duration in milliseconds each values remains valid
    * @return {Promise<void>}
    * A promise to be resolved when the values are stored.
    * @example
@@ -130,12 +149,16 @@ class KV<T> {
    * .then(() => console.log('Stored!'));
    * // Prints: Stored!
    */
-  async bulkSet(keys: string[], values: (T | undefined)[]) {
+  async bulkSet(
+    keys: string[],
+    values: (T | undefined)[],
+    ttls: number[] = [],
+  ) {
     await Promise.all(
       keys.map((key, index) => {
         const value = values[index];
 
-        return this.set(key, value);
+        return this.set(key, value, ttls[index]);
       }),
     );
   }
@@ -183,6 +206,8 @@ class KV<T> {
  * The services to inject
  * @param  {Function}   services.delay
  * A delaying function
+ * @param  {Function}   services.time
+ * A timing function
  * @param  {Function}   [services.log]
  * A logging function
  * @param  {Number}     [services.KV_TTL]
@@ -205,6 +230,7 @@ async function initKV<T>({
   KV_STORE = new Map(),
   log = noop,
   delay,
+  time,
 }: KVStoreDependencies<T>): Promise<KVStoreService<T>> {
   log('debug', '💾 - Simple Key Value Service initialized.');
 
@@ -213,5 +239,6 @@ async function initKV<T>({
     store: KV_STORE,
     log,
     delay,
+    time,
   });
 }
