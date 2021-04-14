@@ -1,3 +1,12 @@
+# [4.2.0](https://github.com/nfroidure/memory-kv-store/compare/v4.1.0...v4.2.0) (2021-04-14)
+
+
+### Features
+
+* **api:** allow to delete keys ([5cb51fc](https://github.com/nfroidure/memory-kv-store/commit/5cb51fcfe2a391fbcef068011fe3b5f92812ccdc))
+
+
+
 # [4.1.0](https://github.com/nfroidure/memory-kv-store/compare/v4.0.1...v4.1.0) (2021-04-12)
 
 
