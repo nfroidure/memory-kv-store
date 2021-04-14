@@ -23,12 +23,14 @@ export type KVStoreDependencies<T> = KVStoreConfig<T> & {
 export type KVStoreService<T> = {
   get: (key: string) => Promise<T | undefined>;
   set: (key: string, value: T, ttl?: number) => Promise<void>;
+  delete: (key: string) => Promise<void>;
   bulkGet: (keys: string[]) => Promise<(T | undefined)[]>;
   bulkSet: (
     keys: string[],
     values: (T | undefined)[],
     ttls?: number[],
   ) => Promise<void>;
+  bulkDelete: (keys: string[]) => Promise<void>;
 };
 
 export type KVStoreServiceInitializer<T> = (
@@ -99,14 +101,7 @@ class KV<T> {
    * // Prints: Stored!
    */
   async set(key: string, value: T | undefined, ttl = Infinity) {
-    await new Promise<void>((resolve, reject) => {
-      try {
-        this._store.set(key, { data: value, expiresAt: ttl + this._time() });
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    });
+    this._store.set(key, { data: value, expiresAt: ttl + this._time() });
   }
 
   /**
@@ -121,7 +116,7 @@ class KV<T> {
    * // Prints: world
    */
   async get(key: string): Promise<T | undefined> {
-    const result = await this._store.get(key);
+    const result = this._store.get(key);
 
     if (result) {
       if (result.expiresAt > this._time()) {
@@ -132,6 +127,21 @@ class KV<T> {
     }
 
     return;
+  }
+
+  /**
+   * Delete a value from the store
+   * @param  {String}   key
+   * The keyof the deleted value
+   * @return {Promise<void>}
+   * A promise that resolve once the value is deleted.
+   * @example
+   * kv.delete('hello');
+   * .then((value) => console.log('Deleted!'));
+   * // Prints: Deleted!
+   */
+  async delete(key: string): Promise<void> {
+    this._store.delete(key);
   }
 
   /**
@@ -177,6 +187,22 @@ class KV<T> {
    */
   async bulkGet(keys: string[]): Promise<(T | undefined)[]> {
     return await Promise.all(keys.map((key) => this.get(key)));
+  }
+
+  /**
+   * Delete values for several keys from the store
+   * @param  {Array.String}   keys
+   * The keys for which to delete the values
+   * @return {Promise<void>}
+   * A promise to be resolved when the values
+   *  are deleted.
+   * @example
+   * kv.bulkDelete(['hello', 'foo']);
+   * .then((values) => console.log('Deleted!'));
+   * // Prints: Deleted!
+   */
+  async bulkDelete(keys: string[]): Promise<void> {
+    await Promise.all(keys.map((key) => this.delete(key)));
   }
 
   _kvServiceClear() {

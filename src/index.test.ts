@@ -41,7 +41,7 @@ describe('Simple Key Value service', () => {
 
   ['trololol', { lol: 'lol' }, 1, true].forEach((value) => {
     it(
-      'should allow to set and get a ' + typeof value + ' by its key',
+      'should allow to set, delete and get a ' + typeof value + ' by its key',
       async () => {
         $.register(constant('KV_TTL', Infinity));
 
@@ -57,6 +57,12 @@ describe('Simple Key Value service', () => {
         const retrievedValue = await kv.get('lol');
 
         expect(retrievedValue).toEqual(value);
+
+        await kv.delete('lol');
+
+        const retrievedValue2 = await kv.get('lol');
+
+        expect(retrievedValue2).toBeUndefined();
       },
     );
   });
@@ -102,6 +108,12 @@ describe('Simple Key Value service', () => {
     const retrievedValues = await kv.bulkGet(keys);
 
     expect(retrievedValues).toEqual(values);
+
+    await kv.bulkDelete(keys);
+
+    const retrievedValues2 = await kv.bulkGet(keys);
+
+    expect(retrievedValues2).toEqual(values.map(() => undefined));
   });
 
   describe('when timeout occurs', () => {
