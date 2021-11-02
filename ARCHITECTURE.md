@@ -5,9 +5,12 @@
 [//]: # ( )
 # Architecture Notes
 
+## Summary
+
+1. [Memory Key/Value Store](#1-memory-key/value-store)
 
 
-## Memory Key/Value Store
+## 1. Memory Key/Value Store
 
 This simple key/value store is intended to serve
  as a dumb, in memory, key/value store that empty

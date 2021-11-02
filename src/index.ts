@@ -7,7 +7,7 @@ function noop(...args: unknown[]) {
   args;
 }
 
-type InternalStore<T> = Map<string, { data: T; expiresAt: number }>;
+type InternalStore<T> = Map<string, { data: T | undefined; expiresAt: number }>;
 
 export type KVStoreConfig<T> = {
   KV_TTL?: number;

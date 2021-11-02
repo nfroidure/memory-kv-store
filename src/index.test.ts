@@ -1,16 +1,15 @@
 import { constant, Knifecycle } from 'knifecycle';
-import initLog from 'common-services/dist/log.mock';
 import initDelay from 'common-services/dist/delay.mock';
 import initTime from 'common-services/dist/time.mock';
 import initKV from '.';
 import type { KVStoreService } from '.';
 
 describe('Simple Key Value service', () => {
-  let $: Knifecycle<unknown>;
+  let $: Knifecycle;
 
   beforeEach(() => {
     $ = new Knifecycle();
-    $.register(initLog);
+    $.register(constant('log', jest.fn()));
     $.register(initDelay);
     $.register(initTime);
     $.register(initKV);
@@ -24,7 +23,7 @@ describe('Simple Key Value service', () => {
 
     expect(typeof kv.get).toEqual('function');
     expect(typeof kv.set).toEqual('function');
-    expect(log.args).toEqual([
+    expect(log.mock.calls).toEqual([
       ['debug', '💾 - Simple Key Value Service initialized.'],
     ]);
   });
