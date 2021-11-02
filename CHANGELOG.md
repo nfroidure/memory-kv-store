@@ -1,3 +1,12 @@
+# [5.0.0](https://github.com/nfroidure/memory-kv-store/compare/v4.2.0...v5.0.0) (2021-11-02)
+
+
+### Features
+
+* **types:** switch to strict types ([f3db235](https://github.com/nfroidure/memory-kv-store/commit/f3db2350c8718ed06bbaf3d81cf20eb6f5d93592))
+
+
+
 # [4.2.0](https://github.com/nfroidure/memory-kv-store/compare/v4.1.0...v4.2.0) (2021-04-14)
 
 
