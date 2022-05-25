@@ -1,3 +1,7 @@
+## [5.0.1](https://github.com/nfroidure/memory-kv-store/compare/v5.0.0...v5.0.1) (2022-05-25)
+
+
+
 # [5.0.0](https://github.com/nfroidure/memory-kv-store/compare/v4.2.0...v5.0.0) (2021-11-02)
 
 
