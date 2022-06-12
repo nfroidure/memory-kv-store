@@ -1,6 +1,6 @@
 {
   "name": "memory-kv-store",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "A simple in-memory key/value store.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
