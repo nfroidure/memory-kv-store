@@ -1,24 +1,38 @@
+import { jest } from '@jest/globals';
 import { constant, Knifecycle } from 'knifecycle';
-import initDelay from 'common-services/dist/delay.mock';
-import initTime from 'common-services/dist/time.mock';
-import initKV from '.';
-import type { KVStoreService } from '.';
+import initKV from './index.js';
+import type { KVStoreService } from './index.js';
+import type { DelayService, LogService, TimeService } from 'common-services';
 
 describe('Simple Key Value service', () => {
   let $: Knifecycle;
+  const delay = {
+    create: jest.fn<DelayService['create']>(),
+    clear: jest.fn<DelayService['clear']>(),
+  };
+  const log = jest.fn<LogService>();
+  const time = jest.fn<TimeService>();
 
   beforeEach(() => {
     $ = new Knifecycle();
-    $.register(constant('log', jest.fn()));
-    $.register(initDelay);
-    $.register(initTime);
+    $.register(constant('log', log));
+    $.register(constant('delay', delay));
+    $.register(constant('time', time));
     $.register(initKV);
+
+    delay.create.mockReset();
+    delay.clear.mockReset();
+    log.mockReset();
+    time.mockReset();
   });
 
   it('should init well', async () => {
-    const { log, kv } = (await $.run(['log', 'kv'])) as {
+    const promise = new Promise<void>(() => undefined);
+
+    delay.create.mockReturnValueOnce(promise);
+
+    const { kv } = (await $.run(['log', 'kv'])) as {
       kv: KVStoreService<unknown>;
-      log: any;
     };
 
     expect(typeof kv.get).toEqual('function');
@@ -29,6 +43,9 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to get a undefined value by its key', async () => {
+    const promise = new Promise<void>(() => undefined);
+
+    delay.create.mockReturnValueOnce(promise);
     const { kv } = (await $.run(['kv'])) as {
       kv: KVStoreService<number>;
     };
@@ -42,14 +59,17 @@ describe('Simple Key Value service', () => {
     it(
       'should allow to set, delete and get a ' + typeof value + ' by its key',
       async () => {
+        const promise = new Promise<void>(() => undefined);
+
+        delay.create.mockReturnValueOnce(promise);
+
         $.register(constant('KV_TTL', Infinity));
 
-        const { kv, time } = (await $.run(['kv', 'time'])) as {
+        const { kv } = (await $.run(['kv'])) as {
           kv: KVStoreService<typeof value>;
-          time: any;
         };
 
-        time.returns(Date.parse('2020-01-01T00:00:00Z'));
+        time.mockReturnValue(Date.parse('2020-01-01T00:00:00Z'));
 
         await kv.set('lol', value);
 
@@ -67,16 +87,18 @@ describe('Simple Key Value service', () => {
   });
 
   it('should not return a value that expired', async () => {
-    const { kv, time } = (await $.run(['kv', 'time'])) as {
+    const promise = new Promise<void>(() => undefined);
+
+    delay.create.mockReturnValueOnce(promise);
+    const { kv } = (await $.run(['kv'])) as {
       kv: KVStoreService<number>;
-      time: any;
     };
 
-    time.returns(Date.parse('2020-01-01T00:00:00Z'));
+    time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:00Z'));
 
     await kv.set('lol', 1664, 3600);
 
-    time.returns(Date.parse('2020-01-01T10:00:00Z'));
+    time.mockReturnValueOnce(Date.parse('2020-01-01T10:00:00Z'));
 
     const retrievedValue = await kv.get('lol');
 
@@ -84,6 +106,10 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to bulk get a undefined values by their keys', async () => {
+    let resolve;
+    const promise = new Promise<void>((_resolve) => (resolve = _resolve));
+
+    delay.create.mockReturnValueOnce(promise);
     const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
 
     const values = await kv.bulkGet(['lol', 'kikoo']);
@@ -92,15 +118,18 @@ describe('Simple Key Value service', () => {
   });
 
   it('should allow to set and get values by their keys', async () => {
+    let resolve;
+    const promise = new Promise<void>((_resolve) => (resolve = _resolve));
+
+    delay.create.mockReturnValueOnce(promise);
     const keys = ['a', 'b', 'c', 'd'];
     const values = [1, 2, undefined, 4];
 
-    const { kv, time } = (await $.run(['kv', 'time'])) as {
+    const { kv } = (await $.run(['kv'])) as {
       kv: KVStoreService<number>;
-      time: any;
     };
 
-    time.returns(Date.parse('2020-01-01T00:00:00Z'));
+    time.mockReturnValue(Date.parse('2020-01-01T00:00:00Z'));
 
     await kv.bulkSet(keys, values);
 
@@ -116,59 +145,56 @@ describe('Simple Key Value service', () => {
   });
 
   describe('when timeout occurs', () => {
-    let context;
-    let delayClearSpy;
-    let delayCreateSpy;
+    it('should reset the store after the delay timeout', async () => {
+      let resolve1;
+      const promise1 = new Promise<void>((_resolve) => (resolve1 = _resolve));
+      let resolve2;
+      const promise2 = new Promise<void>((_resolve) => (resolve2 = _resolve));
 
-    beforeEach(async () => {
-      const { log, kv, delay, time } = (await $.run([
-        'log',
-        'kv',
-        'delay',
-        'time',
-      ])) as {
-        kv: KVStoreService<number>;
-        log: any;
-        delay: any;
-        time: any;
+      delay.create.mockReturnValueOnce(promise1);
+      delay.create.mockReturnValueOnce(promise2);
+      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
+      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
+      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
+
+      const { kv } = (await $.run(['kv'])) as {
+        kv: KVStoreService<string>;
       };
 
-      time.returns(Date.parse('2020-01-01T00:00:00Z'));
-
-      delayClearSpy = jest.spyOn(delay, 'clear');
-      delayCreateSpy = jest.spyOn(delay, 'create');
-      context = { log, kv, delay, time };
-    });
-
-    afterEach(() => {
-      delayClearSpy.mockReset();
-      delayCreateSpy.mockReset();
-    });
-
-    it('should reset the store after the delay timeout', async () => {
-      const { kv, delay }: { kv: KVStoreService<string>; delay: any } = context;
+      time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:00Z'));
 
       await kv.set('lol', 'lol');
 
-      await delay.__resolveAll();
+      expect(delay.clear.mock.calls.length).toEqual(0);
+      expect(delay.create.mock.calls).toEqual([[5 * 60 * 1000]]);
 
-      expect(delayClearSpy.mock.calls.length).toEqual(0);
-      expect(delayCreateSpy.mock.calls).toEqual([[5 * 60 * 1000]]);
+      await resolve1();
 
+      expect(delay.clear.mock.calls.length).toEqual(0);
+      expect(delay.create.mock.calls).toEqual([
+        [5 * 60 * 1000],
+        [5 * 60 * 1000],
+      ]);
+
+      time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:01Z'));
       const value = await kv.get('lol');
 
       expect(value).toBeUndefined();
 
+      time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:00Z'));
       await kv.set('lol', 'lol');
+
+      time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:01Z'));
 
       const newValue = await kv.get('lol');
 
       expect(newValue).toEqual('lol');
 
-      await delay.__resolveAll();
+      await resolve2();
 
-      expect(delayClearSpy.mock.calls.length).toEqual(0);
-      expect(delayCreateSpy.mock.calls).toEqual([
+      expect(delay.clear.mock.calls.length).toEqual(0);
+      expect(delay.create.mock.calls).toEqual([
+        [5 * 60 * 1000],
         [5 * 60 * 1000],
         [5 * 60 * 1000],
       ]);

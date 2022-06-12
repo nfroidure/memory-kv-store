@@ -2,34 +2,155 @@
 ## Classes
 
 <dl>
-<dt><a href="#default">default</a></dt>
-<dd></dd>
+<dt><a href="#KV">KV</a></dt>
+<dd><p>Creates a key/value store</p>
+</dd>
 </dl>
 
 ## Functions
 
 <dl>
-<dt><a href="#initKV">initKV(services)</a> ⇒ <code>Promise.&lt;KV&gt;</code></dt>
+<dt><a href="#initKV">initKV(services)</a> ⇒ <code><a href="#KV">Promise.&lt;KV&gt;</a></code></dt>
 <dd><p>Instantiate the kv service</p>
 </dd>
 </dl>
 
-<a name="default"></a>
+<a name="KV"></a>
 
-## default
-**Kind**: global class  
-<a name="new_default_new"></a>
-
-### new exports.default()
+## KV
 Creates a key/value store
 
+**Kind**: global class  
+
+* [KV](#KV)
+    * [.set(key, value, [ttl])](#KV+set) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.get(key)](#KV+get) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [.delete(key)](#KV+delete) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.bulkSet(keys, values, [ttls])](#KV+bulkSet) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.bulkGet(keys)](#KV+bulkGet) ⇒ <code>Promise.&lt;Array.&lt;\*&gt;&gt;</code>
+    * [.bulkDelete(keys)](#KV+bulkDelete) ⇒ <code>Promise.&lt;void&gt;</code>
+
+<a name="KV+set"></a>
+
+### kV.set(key, value, [ttl]) ⇒ <code>Promise.&lt;void&gt;</code>
+Set a value in the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise to be resolved when the value is stored.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>String</code> | The key to store the value at |
+| value | <code>\*</code> | The value to store |
+| [ttl] | <code>number</code> | The duration in milliseconds the value remains valid |
+
+**Example**  
+```js
+kv.set('hello', 'world');
+.then(() => console.log('Stored!'));
+// Prints: Stored!
+```
+<a name="KV+get"></a>
+
+### kV.get(key) ⇒ <code>Promise.&lt;\*&gt;</code>
+Get a value from the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - A promise that resolve to the actual value.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>String</code> | The key that map to the value |
+
+**Example**  
+```js
+kv.get('hello');
+.then((value) => console.log(value));
+// Prints: world
+```
+<a name="KV+delete"></a>
+
+### kV.delete(key) ⇒ <code>Promise.&lt;void&gt;</code>
+Delete a value from the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise that resolve once the value is deleted.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>String</code> | The keyof the deleted value |
+
+**Example**  
+```js
+kv.delete('hello');
+.then((value) => console.log('Deleted!'));
+// Prints: Deleted!
+```
+<a name="KV+bulkSet"></a>
+
+### kV.bulkSet(keys, values, [ttls]) ⇒ <code>Promise.&lt;void&gt;</code>
+Set a several values in the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise to be resolved when the values are stored.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| keys | <code>Array.String</code> | The keys to store the values at |
+| values | <code>Array</code> | The values to store |
+| [ttls] | <code>Array.number</code> | The duration in milliseconds each values remains valid |
+
+**Example**  
+```js
+kv.bulkSet(['hello', 'foo'], ['world', 'bar']);
+.then(() => console.log('Stored!'));
+// Prints: Stored!
+```
+<a name="KV+bulkGet"></a>
+
+### kV.bulkGet(keys) ⇒ <code>Promise.&lt;Array.&lt;\*&gt;&gt;</code>
+Get a several values from the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;Array.&lt;\*&gt;&gt;</code> - A promise to be resolved when the values
+ are retrieved.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| keys | <code>Array.String</code> | The keys to retrieve the values |
+
+**Example**  
+```js
+kv.bulkGet(['hello', 'foo']);
+.then((values) => console.log(values));
+// Prints: ['world', 'bar']
+```
+<a name="KV+bulkDelete"></a>
+
+### kV.bulkDelete(keys) ⇒ <code>Promise.&lt;void&gt;</code>
+Delete values for several keys from the store
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise to be resolved when the values
+ are deleted.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| keys | <code>Array.String</code> | The keys for which to delete the values |
+
+**Example**  
+```js
+kv.bulkDelete(['hello', 'foo']);
+.then((values) => console.log('Deleted!'));
+// Prints: Deleted!
+```
 <a name="initKV"></a>
 
-## initKV(services) ⇒ <code>Promise.&lt;KV&gt;</code>
+## initKV(services) ⇒ [<code>Promise.&lt;KV&gt;</code>](#KV)
 Instantiate the kv service
 
 **Kind**: global function  
-**Returns**: <code>Promise.&lt;KV&gt;</code> - A promise of the kv service  
+**Returns**: [<code>Promise.&lt;KV&gt;</code>](#KV) - A promise of the kv service  
 
 | Param | Type | Description |
 | --- | --- | --- |
