@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, test, beforeEach, jest, expect } from '@jest/globals';
 import { constant, Knifecycle } from 'knifecycle';
 import initKV from './index.js';
 import type { KVStoreService } from './index.js';
@@ -26,7 +26,7 @@ describe('Simple Key Value service', () => {
     time.mockReset();
   });
 
-  it('should init well', async () => {
+  test('should init well', async () => {
     const promise = new Promise<void>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
@@ -42,7 +42,7 @@ describe('Simple Key Value service', () => {
     ]);
   });
 
-  it('should allow to get a undefined value by its key', async () => {
+  test('should allow to get a undefined value by its key', async () => {
     const promise = new Promise<void>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
@@ -56,7 +56,7 @@ describe('Simple Key Value service', () => {
   });
 
   ['trololol', { lol: 'lol' }, 1, true].forEach((value) => {
-    it(
+    test(
       'should allow to set, delete and get a ' + typeof value + ' by its key',
       async () => {
         const promise = new Promise<void>(() => undefined);
@@ -86,7 +86,7 @@ describe('Simple Key Value service', () => {
     );
   });
 
-  it('should not return a value that expired', async () => {
+  test('should not return a value that expired', async () => {
     const promise = new Promise<void>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
@@ -105,7 +105,7 @@ describe('Simple Key Value service', () => {
     expect(retrievedValue).toEqual(undefined);
   });
 
-  it('should allow to bulk get a undefined values by their keys', async () => {
+  test('should allow to bulk get a undefined values by their keys', async () => {
     let resolve;
     const promise = new Promise<void>((_resolve) => (resolve = _resolve));
 
@@ -117,7 +117,7 @@ describe('Simple Key Value service', () => {
     expect(values).toEqual([undefined, undefined]);
   });
 
-  it('should allow to set and get values by their keys', async () => {
+  test('should allow to set and get values by their keys', async () => {
     let resolve;
     const promise = new Promise<void>((_resolve) => (resolve = _resolve));
 
@@ -145,7 +145,7 @@ describe('Simple Key Value service', () => {
   });
 
   describe('when timeout occurs', () => {
-    it('should reset the store after the delay timeout', async () => {
+    test('should reset the store after the delay timeout', async () => {
       let resolve1;
       const promise1 = new Promise<void>((_resolve) => (resolve1 = _resolve));
       let resolve2;
