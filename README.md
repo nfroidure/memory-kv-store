@@ -7,8 +7,8 @@
 # memory-kv-store
 > A simple in-memory key/value store.
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nfroidure/memory-kv-store/blob/master/LICENSE)
-[![Coverage Status](https://coveralls.io/repos/github/nfroidure/memory-kv-store/badge.svg?branch=master)](https://coveralls.io/github/nfroidure/memory-kv-store?branch=master)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/nfroidure/memory-kv-store/blob/main/LICENSE)
+[![Coverage Status](https://coveralls.io/repos/github/nfroidure/memory-kv-store/badge.svg?branch=main)](https://coveralls.io/github/nfroidure/memory-kv-store?branch=main)
 
 
 [//]: # (::contents:start)
@@ -199,4 +199,4 @@ const kv = await initKV({
 - [Nicolas Froidure](http://insertafter.com/en/index.html)
 
 # License
-[MIT](https://github.com/nfroidure/memory-kv-store/blob/master/LICENSE)
+[MIT](https://github.com/nfroidure/memory-kv-store/blob/main/LICENSE)

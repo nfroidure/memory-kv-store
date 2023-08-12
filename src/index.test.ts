@@ -115,6 +115,7 @@ describe('Simple Key Value service', () => {
     const values = await kv.bulkGet(['lol', 'kikoo']);
 
     expect(values).toEqual([undefined, undefined]);
+    expect(resolve).toBeDefined();
   });
 
   test('should allow to set and get values by their keys', async () => {
@@ -142,6 +143,7 @@ describe('Simple Key Value service', () => {
     const retrievedValues2 = await kv.bulkGet(keys);
 
     expect(retrievedValues2).toEqual(values.map(() => undefined));
+    expect(resolve).toBeDefined();
   });
 
   describe('when timeout occurs', () => {
