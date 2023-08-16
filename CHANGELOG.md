@@ -1,3 +1,7 @@
+# [8.0.0](https://github.com/nfroidure/memory-kv-store/compare/v7.0.0...v8.0.0) (2023-08-16)
+
+
+
 # [7.0.0](https://github.com/nfroidure/memory-kv-store/compare/v6.0.2...v7.0.0) (2023-08-12)
 
 
