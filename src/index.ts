@@ -1,11 +1,12 @@
-import { initializer } from 'knifecycle';
-import type { LogService, DelayService, TimeService } from 'common-services';
+import { initializer, location } from 'knifecycle';
+import {
+  type LogService,
+  type DelayService,
+  type TimeService,
+  noop,
+} from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
-
-function noop(...args: unknown[]) {
-  args;
-}
 
 type InternalStore<T> = Map<string, { data: T | undefined; expiresAt: number }>;
 
@@ -43,13 +44,16 @@ This simple key/value store is intended to serve
  as a dumb, in memory, key/value store that empty
  itself after `KV_TTL` milliseconds.
 */
-export default initializer(
-  {
-    name: 'kv',
-    type: 'service',
-    inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay', 'time'],
-  },
-  initKV,
+export default location(
+  initializer(
+    {
+      name: 'kv',
+      type: 'service',
+      inject: ['?KV_TTL', '?KV_STORE', '?log', 'delay', 'time'],
+    },
+    initKV,
+  ),
+  import.meta.url,
 );
 
 /**
