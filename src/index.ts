@@ -10,7 +10,7 @@ const DEFAULT_KV_TTL = 5 * 60 * 1000;
 
 type InternalStore<T> = Map<string, { data: T | undefined; expiresAt: number }>;
 
-export type KVStoreConfig<T> = {
+export interface KVStoreConfig<T> {
   KV_TTL?: number;
   KV_STORE: InternalStore<T>;
 };
@@ -21,7 +21,7 @@ export type KVStoreDependencies<T> = KVStoreConfig<T> & {
   time: TimeService;
 };
 
-export type KVStoreService<T> = {
+export interface KVStoreService<T> {
   get: (key: string) => Promise<T | undefined>;
   set: (key: string, value: T, ttl?: number) => Promise<void>;
   delete: (key: string) => Promise<void>;

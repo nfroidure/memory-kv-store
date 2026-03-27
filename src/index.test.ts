@@ -148,9 +148,9 @@ describe('Simple Key Value service', () => {
 
   describe('when timeout occurs', () => {
     test('should reset the store after the delay timeout', async () => {
-      let resolve1;
+      let resolve1: (value: void | PromiseLike<void>) => void;
       const promise1 = new Promise<void>((_resolve) => (resolve1 = _resolve));
-      let resolve2;
+      let resolve2: (value: void | PromiseLike<void>) => void;
       const promise2 = new Promise<void>((_resolve) => (resolve2 = _resolve));
 
       delay.create.mockReturnValueOnce(promise1);
@@ -170,7 +170,10 @@ describe('Simple Key Value service', () => {
       expect(delay.clear.mock.calls.length).toEqual(0);
       expect(delay.create.mock.calls).toEqual([[5 * 60 * 1000]]);
 
-      await resolve1();
+      // @ts-expect-error Cannot be undefined
+      resolve1();
+
+      await promise1;
 
       expect(delay.clear.mock.calls.length).toEqual(0);
       expect(delay.create.mock.calls).toEqual([
@@ -192,7 +195,10 @@ describe('Simple Key Value service', () => {
 
       expect(newValue).toEqual('lol');
 
-      await resolve2();
+      // @ts-expect-error Cannot be undefined
+      resolve2();
+      
+      await promise2;
 
       expect(delay.clear.mock.calls.length).toEqual(0);
       expect(delay.create.mock.calls).toEqual([
