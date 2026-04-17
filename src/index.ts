@@ -4,6 +4,7 @@ import {
   type DelayService,
   type TimeService,
   noop,
+  DelayResult,
 } from 'common-services';
 
 const DEFAULT_KV_TTL = 5 * 60 * 1000;
@@ -13,7 +14,7 @@ type InternalStore<T> = Map<string, { data: T | undefined; expiresAt: number }>;
 export interface KVStoreConfig<T> {
   KV_TTL?: number;
   KV_STORE: InternalStore<T>;
-};
+}
 
 export type KVStoreDependencies<T> = KVStoreConfig<T> & {
   log: LogService;
@@ -32,7 +33,7 @@ export interface KVStoreService<T> {
     ttls?: number[],
   ) => Promise<void>;
   bulkDelete: (keys: string[]) => Promise<void>;
-};
+}
 
 export type KVStoreServiceInitializer<T> = (
   dependencies: KVStoreDependencies<T>,
@@ -66,7 +67,7 @@ class KV<T> {
   private _delay: DelayService;
   private _time: TimeService;
   private _store: InternalStore<T>;
-  private _currentDelay: Promise<void> | null;
+  private _currentDelay: Promise<DelayResult> | null;
   constructor({
     store,
     ttl,
@@ -224,9 +225,15 @@ class KV<T> {
 
     this._currentDelay = this._delay.create(this._ttl);
 
-    this._currentDelay.then(this._kvServiceClear.bind(this)).catch((err) => {
-      this._log('debug', '💾 - Delay renewed.', err);
-    });
+    this._currentDelay
+      .then((result) => {
+        if (result === 'timeout') {
+          this._kvServiceClear();
+        }
+      })
+      .catch((err) => {
+        this._log('debug', '💾 - Delay renewed.', err);
+      });
   }
 }
 

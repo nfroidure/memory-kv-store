@@ -1,8 +1,13 @@
 import { describe, test, beforeEach, jest, expect } from '@jest/globals';
 import { constant, Knifecycle } from 'knifecycle';
 import initKV from './index.js';
-import type { KVStoreService } from './index.js';
-import type { DelayService, LogService, TimeService } from 'common-services';
+import { type KVStoreService } from './index.js';
+import {
+  type DelayResult,
+  type DelayService,
+  type LogService,
+  type TimeService,
+} from 'common-services';
 
 describe('Simple Key Value service', () => {
   let $: Knifecycle;
@@ -27,7 +32,7 @@ describe('Simple Key Value service', () => {
   });
 
   test('should init well', async () => {
-    const promise = new Promise<void>(() => undefined);
+    const promise = new Promise<'timeout'>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
 
@@ -43,9 +48,10 @@ describe('Simple Key Value service', () => {
   });
 
   test('should allow to get a undefined value by its key', async () => {
-    const promise = new Promise<void>(() => undefined);
+    const promise = new Promise<'timeout'>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
+
     const { kv } = (await $.run(['kv'])) as {
       kv: KVStoreService<number>;
     };
@@ -59,7 +65,7 @@ describe('Simple Key Value service', () => {
     test(
       'should allow to set, delete and get a ' + typeof value + ' by its key',
       async () => {
-        const promise = new Promise<void>(() => undefined);
+        const promise = new Promise<'timeout'>(() => undefined);
 
         delay.create.mockReturnValueOnce(promise);
 
@@ -87,7 +93,7 @@ describe('Simple Key Value service', () => {
   });
 
   test('should not return a value that expired', async () => {
-    const promise = new Promise<void>(() => undefined);
+    const promise = new Promise<'timeout'>(() => undefined);
 
     delay.create.mockReturnValueOnce(promise);
     const { kv } = (await $.run(['kv'])) as {
@@ -106,10 +112,10 @@ describe('Simple Key Value service', () => {
   });
 
   test('should allow to bulk get a undefined values by their keys', async () => {
-    let resolve;
-    const promise = new Promise<void>((_resolve) => (resolve = _resolve));
+    const { resolve, promise } = Promise.withResolvers<DelayResult>();
 
     delay.create.mockReturnValueOnce(promise);
+
     const { kv } = (await $.run(['kv'])) as { kv: KVStoreService<number> };
 
     const values = await kv.bulkGet(['lol', 'kikoo']);
@@ -119,8 +125,7 @@ describe('Simple Key Value service', () => {
   });
 
   test('should allow to set and get values by their keys', async () => {
-    let resolve;
-    const promise = new Promise<void>((_resolve) => (resolve = _resolve));
+    const { resolve, promise } = Promise.withResolvers<DelayResult>();
 
     delay.create.mockReturnValueOnce(promise);
     const keys = ['a', 'b', 'c', 'd'];
@@ -148,16 +153,22 @@ describe('Simple Key Value service', () => {
 
   describe('when timeout occurs', () => {
     test('should reset the store after the delay timeout', async () => {
-      let resolve1: (value: void | PromiseLike<void>) => void;
-      const promise1 = new Promise<void>((_resolve) => (resolve1 = _resolve));
-      let resolve2: (value: void | PromiseLike<void>) => void;
-      const promise2 = new Promise<void>((_resolve) => (resolve2 = _resolve));
+      const { resolve: resolve1, promise: promise1 } =
+        Promise.withResolvers<DelayResult>();
+      const { resolve: resolve2, promise: promise2 } =
+        Promise.withResolvers<DelayResult>();
 
       delay.create.mockReturnValueOnce(promise1);
       delay.create.mockReturnValueOnce(promise2);
-      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
-      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
-      delay.create.mockReturnValueOnce(new Promise<void>(() => undefined));
+      delay.create.mockReturnValueOnce(
+        new Promise<DelayResult>(() => undefined),
+      );
+      delay.create.mockReturnValueOnce(
+        new Promise<DelayResult>(() => undefined),
+      );
+      delay.create.mockReturnValueOnce(
+        new Promise<DelayResult>(() => undefined),
+      );
 
       const { kv } = (await $.run(['kv'])) as {
         kv: KVStoreService<string>;
@@ -170,8 +181,7 @@ describe('Simple Key Value service', () => {
       expect(delay.clear.mock.calls.length).toEqual(0);
       expect(delay.create.mock.calls).toEqual([[5 * 60 * 1000]]);
 
-      // @ts-expect-error Cannot be undefined
-      resolve1();
+      resolve1('timeout');
 
       await promise1;
 
@@ -195,9 +205,8 @@ describe('Simple Key Value service', () => {
 
       expect(newValue).toEqual('lol');
 
-      // @ts-expect-error Cannot be undefined
-      resolve2();
-      
+      resolve2('timeout');
+
       await promise2;
 
       expect(delay.clear.mock.calls.length).toEqual(0);
