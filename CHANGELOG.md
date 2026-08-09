@@ -1,3 +1,9 @@
+## [10.1.0](https://github.com/nfroidure/memory-kv-store/compare/v10.0.2...v10.1.0) (2026-08-09)
+
+### Features
+
+* add getSet and getDelete ([f07de0a](https://github.com/nfroidure/memory-kv-store/commit/f07de0abe0d000faec07827a92e2823b6929b5ff))
+
 ## [10.0.2](https://github.com/nfroidure/memory-kv-store/compare/v10.0.1...v10.0.2) (2026-04-17)
 
 ## [10.0.1](https://github.com/nfroidure/memory-kv-store/compare/v10.0.0...v10.0.1) (2026-04-07)
