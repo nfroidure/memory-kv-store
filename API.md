@@ -26,6 +26,8 @@ Creates a key/value store
     * [.set(key, value, [ttl])](#KV+set) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.get(key)](#KV+get) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [.delete(key)](#KV+delete) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.getSet(key, value, [ttl])](#KV+getSet) ⇒ <code>Promise.&lt;\*&gt;</code>
+    * [.getDelete(key)](#KV+getDelete) ⇒ <code>Promise.&lt;\*&gt;</code>
     * [.bulkSet(keys, values, [ttls])](#KV+bulkSet) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.bulkGet(keys)](#KV+bulkGet) ⇒ <code>Promise.&lt;Array.&lt;\*&gt;&gt;</code>
     * [.bulkDelete(keys)](#KV+bulkDelete) ⇒ <code>Promise.&lt;void&gt;</code>
@@ -85,6 +87,44 @@ Delete a value from the store
 kv.delete('hello');
 .then((value) => console.log('Deleted!'));
 // Prints: Deleted!
+```
+<a name="KV+getSet"></a>
+
+### kV.getSet(key, value, [ttl]) ⇒ <code>Promise.&lt;\*&gt;</code>
+Set a value and get the previous one
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - A promise that resolve to the previous value.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>String</code> | The key that map to the value |
+| value | <code>\*</code> | The new value to store |
+| [ttl] | <code>number</code> | The duration in milliseconds the value remains valid |
+
+**Example**  
+```js
+kv.getSet('hello', 'folks');
+.then((value) => console.log(value));
+// Prints: world
+```
+<a name="KV+getDelete"></a>
+
+### kV.getDelete(key) ⇒ <code>Promise.&lt;\*&gt;</code>
+Get a value from the store and delete it
+
+**Kind**: instance method of [<code>KV</code>](#KV)  
+**Returns**: <code>Promise.&lt;\*&gt;</code> - A promise that resolve to the actual value.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>String</code> | The key that map to the value |
+
+**Example**  
+```js
+kv.getDelete('hello');
+.then((value) => console.log(value));
+// Prints: world
 ```
 <a name="KV+bulkSet"></a>
 

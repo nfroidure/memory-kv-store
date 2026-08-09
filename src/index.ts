@@ -24,7 +24,7 @@ export type KVStoreDependencies<T> = KVStoreConfig<T> & {
 
 export interface KVStoreService<T> {
   get: (key: string) => Promise<T | undefined>;
-  set: (key: string, value: T, ttl?: number) => Promise<void>;
+  set: (key: string, value: T | undefined, ttl?: number) => Promise<void>;
   delete: (key: string) => Promise<void>;
   bulkGet: (keys: string[]) => Promise<(T | undefined)[]>;
   bulkSet: (
@@ -33,6 +33,12 @@ export interface KVStoreService<T> {
     ttls?: number[],
   ) => Promise<void>;
   bulkDelete: (keys: string[]) => Promise<void>;
+  getSet: (
+    key: string,
+    value: T | undefined,
+    ttl?: number,
+  ) => Promise<T | undefined>;
+  getDelete: (key: string) => Promise<T | undefined>;
 }
 
 export type KVStoreServiceInitializer<T> = (
@@ -147,6 +153,61 @@ class KV<T> {
    */
   async delete(key: string): Promise<void> {
     this._store.delete(key);
+  }
+
+  /**
+   * Set a value and get the previous one
+   * @param  {String}   key
+   * The key that map to the value
+   * @param  {*}        value
+   * The new value to store
+   * @param  {number}   [ttl]
+   * The duration in milliseconds the value remains valid
+   * @return {Promise<*>}
+   * A promise that resolve to the previous value.
+   * @example
+   * kv.getSet('hello', 'folks');
+   * .then((value) => console.log(value));
+   * // Prints: world
+   */
+  async getSet(
+    key: string,
+    value: T | undefined,
+    ttl = Infinity,
+  ): Promise<T | undefined> {
+    const currentTime = this._time();
+    const result = this._store.get(key);
+    this._store.set(key, { data: value, expiresAt: ttl + currentTime });
+
+    if (result && result.expiresAt > currentTime) {
+      return result.data;
+    }
+
+    return;
+  }
+
+  /**
+   * Get a value from the store and delete it
+   * @param  {String}   key
+   * The key that map to the value
+   * @return {Promise<*>}
+   * A promise that resolve to the actual value.
+   * @example
+   * kv.getDelete('hello');
+   * .then((value) => console.log(value));
+   * // Prints: world
+   */
+  async getDelete(key: string): Promise<T | undefined> {
+    const result = this._store.get(key);
+    this._store.delete(key);
+
+    if (result) {
+      if (result.expiresAt > this._time()) {
+        return result.data;
+      }
+    }
+
+    return;
   }
 
   /**
