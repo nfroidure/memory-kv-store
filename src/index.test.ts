@@ -88,6 +88,26 @@ describe('Simple Key Value service', () => {
         const retrievedValue2 = await kv.get('lol');
 
         expect(retrievedValue2).toBeUndefined();
+
+        const retrievedValue3 = await kv.getSet('lol', 'plop');
+
+        expect(retrievedValue3).toBeUndefined();
+
+        const retrievedValue4 = await kv.getSet('lol', 'plop2');
+
+        expect(retrievedValue4).toBe('plop');
+
+        const retrievedValue5 = await kv.getSet('lol', 'plop3');
+
+        expect(retrievedValue5).toBe('plop2');
+
+        const retrievedValue6 = await kv.getDelete('lol');
+
+        expect(retrievedValue6).toBe('plop3');
+
+        const retrievedValue7 = await kv.getDelete('lol');
+
+        expect(retrievedValue7).toBeUndefined();
       },
     );
   });
@@ -109,6 +129,28 @@ describe('Simple Key Value service', () => {
     const retrievedValue = await kv.get('lol');
 
     expect(retrievedValue).toEqual(undefined);
+
+
+    time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:00Z'));
+
+    await kv.set('lol', 1664, 3600);
+
+    time.mockReturnValueOnce(Date.parse('2020-01-01T10:00:00Z'));
+
+    const retrievedValue2 = await kv.getSet('lol', 1665);
+
+    expect(retrievedValue2).toEqual(undefined);
+
+
+    time.mockReturnValueOnce(Date.parse('2020-01-01T00:00:00Z'));
+
+    await kv.set('lol', 1664, 3600);
+
+    time.mockReturnValueOnce(Date.parse('2020-01-01T10:00:00Z'));
+
+    const retrievedValue3 = await kv.getDelete('lol');
+
+    expect(retrievedValue3).toEqual(undefined);
   });
 
   test('should allow to bulk get a undefined values by their keys', async () => {
